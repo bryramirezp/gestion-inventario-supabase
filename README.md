@@ -110,7 +110,7 @@ La fase final se centró en validar el sistema, desplegarlo en producción y com
 ## 📜 Tecnologías Principales
 
 - **Backend:** Supabase (Base de datos PostgreSQL, Autenticación, APIs automáticas)
-- **Frontend:** JavaScript, con un framework como Vue.js o React
+- **Frontend:** React
 - **Alojamiento (Hosting):** Vercel (Recomendado) o GitHub Pages
 - **Control de Versiones:** Git y GitHub
 
@@ -156,11 +156,11 @@ La fase final se centró en validar el sistema, desplegarlo en producción y com
 
 ### Fase 2: Desarrollo del Frontend
 
-1. **Entorno Local:** Asegúrate de tener Node.js instalado. Usa la terminal para crear un nuevo proyecto de Vue o React.
-   ```bash
-   # Para Vue.js
-   npm create vue@latest
-   ```
+1. **Entorno Local:** Asegúrate de tener Node.js instalado. Usa la terminal para crear un nuevo proyecto de React.
+    ```bash
+    # Para React
+    npm create vite@latest
+    ```
 
 2. **Instalar Cliente de Supabase:** Dentro de la carpeta de tu proyecto, instala la librería cliente de Supabase.
    ```bash
@@ -190,8 +190,8 @@ La fase final se centró en validar el sistema, desplegarlo en producción y com
 2. **Importar Proyecto:** En tu dashboard de Vercel, haz clic en "Add New... > Project" e importa el repositorio de GitHub que creaste.
 
 3. **Configurar Variables de Entorno:** Vercel detectará tu framework. Durante la configuración, ve a la sección "Environment Variables". Aquí debes añadir de forma segura tu URL y anon key de Supabase para que no queden expuestas en el código.
-   - `VUE_APP_SUPABASE_URL` = (tu URL de Supabase)
-   - `VUE_APP_SUPABASE_ANON_KEY` = (tu anon key de Supabase)
+    - `REACT_APP_SUPABASE_URL` = (tu URL de Supabase)
+    - `REACT_APP_SUPABASE_ANON_KEY` = (tu anon key de Supabase)
 
 4. **Desplegar:** Haz clic en "Deploy". Vercel construirá tu aplicación y la publicará en una URL. A partir de ahora, cada vez que hagas `git push` a tu rama principal en GitHub, Vercel redesplegarán los cambios automáticamente.
 
@@ -293,30 +293,30 @@ USING (true);
 src/
 ├── components/
 │   ├── Layout/
-│   │   ├── Header.vue
-│   │   ├── Sidebar.vue
-│   │   └── Footer.vue
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── Footer.tsx
 │   ├── Inventario/
-│   │   ├── ListaArticulos.vue
-│   │   ├── FormularioArticulo.vue
-│   │   └── ResumenInventario.vue
+│   │   ├── ListaArticulos.tsx
+│   │   ├── FormularioArticulo.tsx
+│   │   └── ResumenInventario.tsx
 │   ├── Movimientos/
-│   │   ├── RegistrarMovimiento.vue
-│   │   ├── HistorialMovimientos.vue
-│   │   └── ValidacionFirma.vue
+│   │   ├── RegistrarMovimiento.tsx
+│   │   ├── HistorialMovimientos.tsx
+│   │   └── ValidacionFirma.tsx
 │   └── Common/
-│       ├── Loading.vue
-│       ├── Modal.vue
-│       └── Alert.vue
+│       ├── Loading.tsx
+│       ├── Modal.tsx
+│       └── Alert.tsx
 ├── views/
-│   ├── Dashboard.vue
-│   ├── Inventario.vue
-│   ├── Movimientos.vue
-│   └── Reportes.vue
-├── composables/
-│   ├── useSupabase.js
-│   ├── useInventario.js
-│   └── useMovimientos.js
+│   ├── Dashboard.tsx
+│   ├── Inventario.tsx
+│   ├── Movimientos.tsx
+│   └── Reportes.tsx
+├── hooks/
+│   ├── useSupabase.ts
+│   ├── useInventario.ts
+│   └── useMovimientos.ts
 ├── utils/
 │   ├── constants.js
 │   ├── formatters.js
@@ -360,13 +360,13 @@ Crea un archivo `.env.local` en la raíz de tu proyecto con las siguientes varia
 
 ```env
 # Configuración de Supabase
-VUE_APP_SUPABASE_URL=tu_url_de_supabase_aqui
-VUE_APP_SUPABASE_ANON_KEY=tu_anon_key_de_supabase_aqui
+REACT_APP_SUPABASE_URL=tu_url_de_supabase_aqui
+REACT_APP_SUPABASE_ANON_KEY=tu_anon_key_de_supabase_aqui
 
 # Configuración de la aplicación
-VUE_APP_NOMBRE_APP=Sistema de Inventario - La Gran Familia
-VUE_APP_VERSION=1.0.0
-VUE_APP_ENTORNO=desarrollo
+REACT_APP_NOMBRE_APP=Sistema de Inventario - La Gran Familia
+REACT_APP_VERSION=1.0.0
+REACT_APP_ENTORNO=desarrollo
 ```
 
 ## 🚦 Scripts de Desarrollo
@@ -378,7 +378,7 @@ VUE_APP_ENTORNO=desarrollo
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx --fix",
     "format": "prettier --write ."
   }
 }
@@ -419,8 +419,8 @@ VUE_APP_ENTORNO=desarrollo
 // Solución: Verificar la configuración del cliente
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VUE_APP_SUPABASE_URL
-const supabaseKey = import.meta.env.VUE_APP_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
@@ -455,16 +455,16 @@ ALTER TABLE articulos DISABLE ROW LEVEL SECURITY;
 
 ### Documentación Oficial
 - [Supabase Docs](https://supabase.com/docs)
-- [Vue.js Guide](https://vuejs.org/guide/)
+- [React Documentation](https://react.dev/)
 - [Vercel Documentation](https://vercel.com/docs)
 
 ### Tutoriales Recomendados
-- [Building a Full Stack App with Supabase and Vue.js](https://supabase.com/blog/building-a-realtime-app-with-vue-js-and-supabase)
+- [Building a Full Stack App with Supabase and React](https://supabase.com/blog/building-a-realtime-app-with-react-and-supabase)
 - [Row Level Security in Supabase](https://supabase.com/docs/guides/auth/row-level-security)
-- [Deploying Vue.js Apps to Vercel](https://vercel.com/guides/deploying-vuejs-to-vercel)
+- [Deploying React Apps to Vercel](https://vercel.com/guides/deploying-react-with-vercel)
 
 ### Herramientas de Desarrollo
-- [Vue Devtools](https://devtools.vuejs.org/)
+- [React DevTools](https://react.dev/learn/react-developer-tools)
 - [Supabase CLI](https://supabase.com/docs/reference/cli)
 - [Postman](https://www.postman.com/) para probar APIs
 
