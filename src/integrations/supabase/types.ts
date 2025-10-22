@@ -9,772 +9,521 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      almacenes: {
+      brands: {
         Row: {
-          activo: boolean | null
-          almacen_id: number
-          nombre: string
+          brand_id: number
+          brand_name: string
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          activo?: boolean | null
-          almacen_id?: number
-          nombre: string
+          brand_id?: number
+          brand_name: string
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          activo?: boolean | null
-          almacen_id?: number
-          nombre?: string
+          brand_id?: number
+          brand_name?: string
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
-      categoriasproductos: {
+      categories: {
         Row: {
-          categoria_producto_id: number
-          nombre: string
+          category_id: number
+          category_name: string
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          categoria_producto_id?: number
-          nombre: string
+          category_id?: number
+          category_name: string
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          categoria_producto_id?: number
-          nombre?: string
+          category_id?: number
+          category_name?: string
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
-      configuracion: {
+      donor_types: {
         Row: {
-          clave: string
-          valor: string | null
-          tipo: string | null
-          descripcion: string | null
-          creado_por: string | null
-          actualizado_por: string | null
-          solo_administrador: boolean | null
-          created_at: string | null
-          updated_at: string | null
+          donor_type_id: number
+          type_name: string
+          description: string | null
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          clave: string
-          valor?: string | null
-          tipo?: string | null
-          descripcion?: string | null
-          creado_por?: string | null
-          actualizado_por?: string | null
-          solo_administrador?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
+          donor_type_id?: number
+          type_name: string
+          description?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          clave?: string
-          valor?: string | null
-          tipo?: string | null
-          descripcion?: string | null
-          creado_por?: string | null
-          actualizado_por?: string | null
-          solo_administrador?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "configuracion_creado_por_fkey"
-            columns: ["creado_por"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "configuracion_actualizado_por_fkey"
-            columns: ["actualizado_por"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      consumoscocina: {
-        Row: {
-          consumo_cocina_id: number
-          lote_id: number
-          variante_id: number | null
-          cantidad: number
-          fecha: string
-          firma_texto: string | null
-          responsable_id: string
-          aprobado_por: string | null
-        }
-        Insert: {
-          consumo_cocina_id?: number
-          lote_id: number
-          variante_id?: number | null
-          cantidad: number
-          fecha: string
-          firma_texto?: string | null
-          responsable_id: string
-          aprobado_por?: string | null
-        }
-        Update: {
-          consumo_cocina_id?: number
-          lote_id?: number
-          variante_id?: number | null
-          cantidad?: number
-          fecha?: string
-          firma_texto?: string | null
-          responsable_id?: string
-          aprobado_por?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "consumoscocina_lote_id_fkey"
-            columns: ["lote_id"]
-            isOneToOne: false
-            referencedRelation: "lotes"
-            referencedColumns: ["lote_id"]
-          },
-          {
-            foreignKeyName: "consumoscocina_variante_id_fkey"
-            columns: ["variante_id"]
-            isOneToOne: false
-            referencedRelation: "variantes_producto"
-            referencedColumns: ["variante_id"]
-          },
-          {
-            foreignKeyName: "consumoscocina_responsable_id_fkey"
-            columns: ["responsable_id"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "consumoscocina_aprobado_por_fkey"
-            columns: ["aprobado_por"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      detallesdonativos: {
-        Row: {
-          detalle_donativo_id: number
-          donativo_id: number
-          variante_id: number | null
-          lote_id: number | null
-          cantidad: number
-          precio_unitario: number | null
-        }
-        Insert: {
-          detalle_donativo_id?: number
-          donativo_id: number
-          variante_id?: number | null
-          lote_id?: number | null
-          cantidad: number
-          precio_unitario?: number | null
-        }
-        Update: {
-          detalle_donativo_id?: number
-          donativo_id?: number
-          variante_id?: number | null
-          lote_id?: number | null
-          cantidad?: number
-          precio_unitario?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "detallesdonativos_donativo_id_fkey"
-            columns: ["donativo_id"]
-            isOneToOne: false
-            referencedRelation: "donativos"
-            referencedColumns: ["donativo_id"]
-          },
-          {
-            foreignKeyName: "detallesdonativos_variante_id_fkey"
-            columns: ["variante_id"]
-            isOneToOne: false
-            referencedRelation: "variantes_producto"
-            referencedColumns: ["variante_id"]
-          },
-          {
-            foreignKeyName: "detallesdonativos_lote_id_fkey"
-            columns: ["lote_id"]
-            isOneToOne: false
-            referencedRelation: "lotes"
-            referencedColumns: ["lote_id"]
-          },
-        ]
-      }
-      detallesventasbazar: {
-        Row: {
-          detalle_venta_id: number
-          venta_id: number
-          lote_id: number
-          variante_id: number | null
-          cantidad: number
-          precio_unitario: number
-        }
-        Insert: {
-          detalle_venta_id?: number
-          venta_id: number
-          lote_id: number
-          variante_id?: number | null
-          cantidad: number
-          precio_unitario: number
-        }
-        Update: {
-          detalle_venta_id?: number
-          venta_id?: number
-          lote_id?: number
-          variante_id?: number | null
-          cantidad?: number
-          precio_unitario?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "detallesventasbazar_venta_id_fkey"
-            columns: ["venta_id"]
-            isOneToOne: false
-            referencedRelation: "ventasbazar"
-            referencedColumns: ["venta_id"]
-          },
-          {
-            foreignKeyName: "detallesventasbazar_lote_id_fkey"
-            columns: ["lote_id"]
-            isOneToOne: false
-            referencedRelation: "lotes"
-            referencedColumns: ["lote_id"]
-          },
-          {
-            foreignKeyName: "detallesventasbazar_variante_id_fkey"
-            columns: ["variante_id"]
-            isOneToOne: false
-            referencedRelation: "variantes_producto"
-            referencedColumns: ["variante_id"]
-          },
-        ]
-      }
-      donadores: {
-        Row: {
-          donador_id: number
-          nombre_completo: string
-          correo: string | null
-          telefono: string | null
-          fecha_registro: string | null
-          activo: boolean | null
-          tipo_donador_id: number | null
-          perfil_id: string | null
-        }
-        Insert: {
-          donador_id?: number
-          nombre_completo: string
-          correo?: string | null
-          telefono?: string | null
-          fecha_registro?: string | null
-          activo?: boolean | null
-          tipo_donador_id?: number | null
-          perfil_id?: string | null
-        }
-        Update: {
-          donador_id?: number
-          nombre_completo?: string
-          correo?: string | null
-          telefono?: string | null
-          fecha_registro?: string | null
-          activo?: boolean | null
-          tipo_donador_id?: number | null
-          perfil_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "donadores_tipo_donador_id_fkey"
-            columns: ["tipo_donador_id"]
-            isOneToOne: false
-            referencedRelation: "tiposdonadores"
-            referencedColumns: ["tipo_donador_id"]
-          },
-          {
-            foreignKeyName: "donadores_perfil_id_fkey"
-            columns: ["perfil_id"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      donativos: {
-        Row: {
-          donativo_id: number
-          donador_id: number | null
-          fecha: string
-          total: number | null
-          observaciones: string | null
-          usuario_id: string
-        }
-        Insert: {
-          donativo_id?: number
-          donador_id?: number | null
-          fecha: string
-          total?: number | null
-          observaciones?: string | null
-          usuario_id: string
-        }
-        Update: {
-          donativo_id?: number
-          donador_id?: number | null
-          fecha?: string
-          total?: number | null
-          observaciones?: string | null
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "donativos_donador_id_fkey"
-            columns: ["donador_id"]
-            isOneToOne: false
-            referencedRelation: "donadores"
-            referencedColumns: ["donador_id"]
-          },
-          {
-            foreignKeyName: "donativos_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lotes: {
-        Row: {
-          lote_id: number
-          variante_id: number
-          numero_lote: string | null
-          fecha_vencimiento: string | null
-          fecha_entrada: string
-          donativo_id: number | null
-          costo_unitario: number | null
-          cantidad_original: number
-          cantidad_actual: number
-          almacen_id: number
-          activo: boolean | null
-          observaciones: string | null
-        }
-        Insert: {
-          lote_id?: number
-          variante_id: number
-          numero_lote?: string | null
-          fecha_vencimiento?: string | null
-          fecha_entrada?: string
-          donativo_id?: number | null
-          costo_unitario?: number | null
-          cantidad_original: number
-          cantidad_actual: number
-          almacen_id: number
-          activo?: boolean | null
-          observaciones?: string | null
-        }
-        Update: {
-          lote_id?: number
-          variante_id?: number
-          numero_lote?: string | null
-          fecha_vencimiento?: string | null
-          fecha_entrada?: string
-          donativo_id?: number | null
-          costo_unitario?: number | null
-          cantidad_original?: number
-          cantidad_actual?: number
-          almacen_id?: number
-          activo?: boolean | null
-          observaciones?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lotes_variante_id_fkey"
-            columns: ["variante_id"]
-            isOneToOne: false
-            referencedRelation: "variantes_producto"
-            referencedColumns: ["variante_id"]
-          },
-          {
-            foreignKeyName: "lotes_donativo_id_fkey"
-            columns: ["donativo_id"]
-            isOneToOne: false
-            referencedRelation: "donativos"
-            referencedColumns: ["donativo_id"]
-          },
-          {
-            foreignKeyName: "lotes_almacen_id_fkey"
-            columns: ["almacen_id"]
-            isOneToOne: false
-            referencedRelation: "almacenes"
-            referencedColumns: ["almacen_id"]
-          },
-        ]
-      }
-      marcas: {
-        Row: {
-          marca_id: number
-          nombre: string
-          descripcion: string | null
-          activo: boolean | null
-        }
-        Insert: {
-          marca_id?: number
-          nombre: string
-          descripcion?: string | null
-          activo?: boolean | null
-        }
-        Update: {
-          marca_id?: number
-          nombre?: string
-          descripcion?: string | null
-          activo?: boolean | null
+          donor_type_id?: number
+          type_name?: string
+          description?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
-      movimientosinventario: {
+      donors: {
         Row: {
-          movimiento_inventario_id: number
-          lote_id: number
-          variante_id: number | null
-          tipo_movimiento_id: number
-          cantidad: number
-          fecha: string
-          usuario_id: string
-          referencia: string | null
+          donor_id: number
+          donor_name: string
+          donor_type_id: number
+          contact_person: string | null
+          phone: string | null
+          email: string | null
+          address: string | null
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          movimiento_inventario_id?: number
-          lote_id: number
-          variante_id?: number | null
-          tipo_movimiento_id: number
-          cantidad: number
-          fecha?: string
-          usuario_id: string
-          referencia?: string | null
+          donor_id?: number
+          donor_name: string
+          donor_type_id: number
+          contact_person?: string | null
+          phone?: string | null
+          email?: string | null
+          address?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          movimiento_inventario_id?: number
-          lote_id?: number
-          variante_id?: number | null
-          tipo_movimiento_id?: number
-          cantidad?: number
-          fecha?: string
-          usuario_id?: string
-          referencia?: string | null
+          donor_id?: number
+          donor_name?: string
+          donor_type_id?: number
+          contact_person?: string | null
+          phone?: string | null
+          email?: string | null
+          address?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "movimientosinventario_lote_id_fkey"
-            columns: ["lote_id"]
+            foreignKeyName: "donors_donor_type_id_fkey"
+            columns: ["donor_type_id"]
             isOneToOne: false
-            referencedRelation: "lotes"
-            referencedColumns: ["lote_id"]
+            referencedRelation: "donor_types"
+            referencedColumns: ["donor_type_id"]
+          }
+        ]
+      }
+      products: {
+        Row: {
+          product_id: number
+          product_name: string
+          sku: string | null
+          description: string | null
+          category_id: number
+          brand_id: number | null
+          official_unit_id: number
+          low_stock_threshold: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          product_id?: number
+          product_name: string
+          sku?: string | null
+          description?: string | null
+          category_id: number
+          brand_id?: number | null
+          official_unit_id: number
+          low_stock_threshold?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          product_id?: number
+          product_name?: string
+          sku?: string | null
+          description?: string | null
+          category_id?: number
+          brand_id?: number | null
+          official_unit_id?: number
+          low_stock_threshold?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "movimientosinventario_variante_id_fkey"
-            columns: ["variante_id"]
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
             isOneToOne: false
-            referencedRelation: "variantes_producto"
-            referencedColumns: ["variante_id"]
+            referencedRelation: "brands"
+            referencedColumns: ["brand_id"]
           },
           {
-            foreignKeyName: "movimientosinventario_tipo_movimiento_id_fkey"
-            columns: ["tipo_movimiento_id"]
+            foreignKeyName: "products_official_unit_id_fkey"
+            columns: ["official_unit_id"]
             isOneToOne: false
-            referencedRelation: "tipos_movimiento"
-            referencedColumns: ["tipo_movimiento_id"]
+            referencedRelation: "units"
+            referencedColumns: ["unit_id"]
+          }
+        ]
+      }
+      roles: {
+        Row: {
+          role_id: number
+          role_name: string
+        }
+        Insert: {
+          role_id?: number
+          role_name: string
+        }
+        Update: {
+          role_id?: number
+          role_name?: string
+        }
+        Relationships: []
+      }
+      stock_history: {
+        Row: {
+          history_id: number
+          lot_id: number
+          transaction_detail_id: number | null
+          user_id: string
+          changed_at: string
+          old_quantity: number
+          new_quantity: number
+          change_reason: string | null
+        }
+        Insert: {
+          history_id?: number
+          lot_id: number
+          transaction_detail_id?: number | null
+          user_id: string
+          changed_at?: string
+          old_quantity: number
+          new_quantity: number
+          change_reason?: string | null
+        }
+        Update: {
+          history_id?: number
+          lot_id?: number
+          transaction_detail_id?: number | null
+          user_id?: string
+          changed_at?: string
+          old_quantity?: number
+          new_quantity?: number
+          change_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_history_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "stock_lots"
+            referencedColumns: ["lot_id"]
           },
           {
-            foreignKeyName: "movimientosinventario_usuario_id_fkey"
-            columns: ["usuario_id"]
+            foreignKeyName: "stock_history_transaction_detail_id_fkey"
+            columns: ["transaction_detail_id"]
             isOneToOne: false
-            referencedRelation: "perfiles"
+            referencedRelation: "transaction_details"
+            referencedColumns: ["detail_id"]
+          },
+          {
+            foreignKeyName: "stock_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          }
+        ]
+      }
+      stock_lots: {
+        Row: {
+          lot_id: number
+          product_id: number
+          warehouse_id: number
+          current_quantity: number
+          received_date: string
+          expiry_date: string | null
+          unit_price: number
+        }
+        Insert: {
+          lot_id?: number
+          product_id: number
+          warehouse_id: number
+          current_quantity: number
+          received_date?: string
+          expiry_date?: string | null
+          unit_price?: number
+        }
+        Update: {
+          lot_id?: number
+          product_id?: number
+          warehouse_id?: number
+          current_quantity?: number
+          received_date?: string
+          expiry_date?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_lots_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "stock_lots_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["warehouse_id"]
+          }
+        ]
+      }
+      transaction_details: {
+        Row: {
+          detail_id: number
+          transaction_id: number
+          product_id: number
+          quantity: number
+          unit_id: number
+          source_lot_id: number | null
+        }
+        Insert: {
+          detail_id?: number
+          transaction_id: number
+          product_id: number
+          quantity: number
+          unit_id: number
+          source_lot_id?: number | null
+        }
+        Update: {
+          detail_id?: number
+          transaction_id?: number
+          product_id?: number
+          quantity?: number
+          unit_id?: number
+          source_lot_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_details_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["transaction_id"]
+          },
+          {
+            foreignKeyName: "transaction_details_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "transaction_details_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "transaction_details_source_lot_id_fkey"
+            columns: ["source_lot_id"]
+            isOneToOne: false
+            referencedRelation: "stock_lots"
+            referencedColumns: ["lot_id"]
+          }
+        ]
+      }
+      transaction_types: {
+        Row: {
+          type_id: number
+          type_name: string
+        }
+        Insert: {
+          type_id?: number
+          type_name: string
+        }
+        Update: {
+          type_id?: number
+          type_name?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          transaction_id: number
+          transaction_type_id: number
+          user_id: string
+          transaction_date: string
+          notes: string | null
+          signature_data: string | null
+          donor_id: number | null
+          source_warehouse_id: number | null
+          destination_warehouse_id: number | null
+        }
+        Insert: {
+          transaction_id?: number
+          transaction_type_id: number
+          user_id: string
+          transaction_date?: string
+          notes?: string | null
+          signature_data?: string | null
+          donor_id?: number | null
+          source_warehouse_id?: number | null
+          destination_warehouse_id?: number | null
+        }
+        Update: {
+          transaction_id?: number
+          transaction_type_id?: number
+          user_id?: string
+          transaction_date?: string
+          notes?: string | null
+          signature_data?: string | null
+          donor_id?: number | null
+          source_warehouse_id?: number | null
+          destination_warehouse_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_transaction_type_id_fkey"
+            columns: ["transaction_type_id"]
+            isOneToOne: false
+            referencedRelation: "transaction_types"
+            referencedColumns: ["type_id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_donor_id_fkey"
+            columns: ["donor_id"]
+            isOneToOne: false
+            referencedRelation: "donors"
+            referencedColumns: ["donor_id"]
+          },
+          {
+            foreignKeyName: "transactions_source_warehouse_id_fkey"
+            columns: ["source_warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["warehouse_id"]
+          },
+          {
+            foreignKeyName: "transactions_destination_warehouse_id_fkey"
+            columns: ["destination_warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["warehouse_id"]
+          }
+        ]
+      }
+      units: {
+        Row: {
+          unit_id: number
+          unit_name: string
+          abbreviation: string
+        }
+        Insert: {
+          unit_id?: number
+          unit_name: string
+          abbreviation: string
+        }
+        Update: {
+          unit_id?: number
+          unit_name?: string
+          abbreviation?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          user_id: string
+          full_name: string
+          role_id: number | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          full_name: string
+          role_id?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          full_name?: string
+          role_id?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      perfiles: {
-        Row: {
-          id: string
-          nombre: string
-          email: string
-          rol_id: number
-          activo: boolean | null
-          telefono: string | null
-          direccion: string | null
-          fecha_registro: string | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id: string
-          nombre: string
-          email: string
-          rol_id: number
-          activo?: boolean | null
-          telefono?: string | null
-          direccion?: string | null
-          fecha_registro?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          nombre?: string
-          email?: string
-          rol_id?: number
-          activo?: boolean | null
-          telefono?: string | null
-          direccion?: string | null
-          fecha_registro?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "perfiles_rol_id_fkey"
-            columns: ["rol_id"]
+            foreignKeyName: "users_role_id_fkey"
+            columns: ["role_id"]
             isOneToOne: false
-            referencedRelation: "roles_usuario"
-            referencedColumns: ["rol_id"]
-          },
+            referencedRelation: "roles"
+            referencedColumns: ["role_id"]
+          }
         ]
       }
-      usuarios: {
+      warehouses: {
         Row: {
-          id: string
-          nombre: string
-          email: string
-          rol_id: number
-          activo: boolean | null
-          created_at: string | null
-          updated_at: string | null
+          warehouse_id: number
+          warehouse_name: string
+          location_description: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          id: string
-          nombre: string
-          email: string
-          rol_id: number
-          activo?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
+          warehouse_id?: number
+          warehouse_name: string
+          location_description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          id?: string
-          nombre?: string
-          email?: string
-          rol_id?: number
-          activo?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "usuarios_rol_id_fkey"
-            columns: ["rol_id"]
-            isOneToOne: false
-            referencedRelation: "roles_usuario"
-            referencedColumns: ["rol_id"]
-          },
-        ]
-      }
-      productos: {
-        Row: {
-          producto_id: number
-          nombre: string
-          categoria_producto_id: number
-          descripcion: string | null
-          activo: boolean | null
-        }
-        Insert: {
-          producto_id?: number
-          nombre: string
-          categoria_producto_id: number
-          descripcion?: string | null
-          activo?: boolean | null
-        }
-        Update: {
-          producto_id?: number
-          nombre?: string
-          categoria_producto_id?: number
-          descripcion?: string | null
-          activo?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "productos_categoria_producto_id_fkey"
-            columns: ["categoria_producto_id"]
-            isOneToOne: false
-            referencedRelation: "categoriasproductos"
-            referencedColumns: ["categoria_producto_id"]
-          },
-        ]
-      }
-      roles_usuario: {
-        Row: {
-          rol_id: number
-          nombre: string
-        }
-        Insert: {
-          rol_id?: number
-          nombre: string
-        }
-        Update: {
-          rol_id?: number
-          nombre?: string
+          warehouse_id?: number
+          warehouse_name?: string
+          location_description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
-      }
-      tipos_movimiento: {
-        Row: {
-          tipo_movimiento_id: number
-          nombre: string
-          factor: number
-        }
-        Insert: {
-          tipo_movimiento_id?: number
-          nombre: string
-          factor: number
-        }
-        Update: {
-          tipo_movimiento_id?: number
-          nombre?: string
-          factor?: number
-        }
-        Relationships: []
-      }
-      tiposdonadores: {
-        Row: {
-          tipo_donador_id: number
-          nombre: string
-        }
-        Insert: {
-          tipo_donador_id?: number
-          nombre: string
-        }
-        Update: {
-          tipo_donador_id?: number
-          nombre?: string
-        }
-        Relationships: []
-      }
-      unidadesmedida: {
-        Row: {
-          unidad_medida_id: number
-          nombre: string
-          abreviatura: string
-        }
-        Insert: {
-          unidad_medida_id?: number
-          nombre: string
-          abreviatura: string
-        }
-        Update: {
-          unidad_medida_id?: number
-          nombre?: string
-          abreviatura?: string
-        }
-        Relationships: []
-      }
-      variantes_producto: {
-        Row: {
-          variante_id: number
-          producto_id: number
-          marca_id: number | null
-          presentacion: string | null
-          codigo_barras: string | null
-          unidad_medida_id: number
-          precio_referencia: number | null
-          activo: boolean | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          variante_id?: number
-          producto_id: number
-          marca_id?: number | null
-          presentacion?: string | null
-          codigo_barras?: string | null
-          unidad_medida_id: number
-          precio_referencia?: number | null
-          activo?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          variante_id?: number
-          producto_id?: number
-          marca_id?: number | null
-          presentacion?: string | null
-          codigo_barras?: string | null
-          unidad_medida_id?: number
-          precio_referencia?: number | null
-          activo?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "variantes_producto_producto_id_fkey"
-            columns: ["producto_id"]
-            isOneToOne: false
-            referencedRelation: "productos"
-            referencedColumns: ["producto_id"]
-          },
-          {
-            foreignKeyName: "variantes_producto_marca_id_fkey"
-            columns: ["marca_id"]
-            isOneToOne: false
-            referencedRelation: "marcas"
-            referencedColumns: ["marca_id"]
-          },
-          {
-            foreignKeyName: "variantes_producto_unidad_medida_id_fkey"
-            columns: ["unidad_medida_id"]
-            isOneToOne: false
-            referencedRelation: "unidadesmedida"
-            referencedColumns: ["unidad_medida_id"]
-          },
-        ]
-      }
-      ventasbazar: {
-        Row: {
-          venta_id: number
-          fecha: string
-          total: number
-          usuario_id: string
-          almacen_id: number
-        }
-        Insert: {
-          venta_id?: number
-          fecha: string
-          total: number
-          usuario_id: string
-          almacen_id: number
-        }
-        Update: {
-          venta_id?: number
-          fecha?: string
-          total?: number
-          usuario_id?: string
-          almacen_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ventasbazar_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ventasbazar_almacen_id_fkey"
-            columns: ["almacen_id"]
-            isOneToOne: false
-            referencedRelation: "almacenes"
-            referencedColumns: ["almacen_id"]
-          },
-        ]
       }
     }
     Views: {

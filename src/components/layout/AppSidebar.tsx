@@ -151,8 +151,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Solo mostrar sección de administración para Administradores (rol_id = 1) */}
-        {profile?.rol_id === 1 && (
+        {/* Solo mostrar sección de administración para Administradores (role_id = 1) */}
+        {profile?.role_id === 1 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -223,15 +223,16 @@ export function AppSidebar() {
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <p className="text-sm font-medium text-foreground">{profile?.nombre || profile?.email || 'Usuario'}</p>
+            <p className="text-sm font-medium text-foreground">{profile?.full_name || profile?.email || 'Usuario'}</p>
             <p className="text-xs text-muted-foreground capitalize">
-              {profile?.rol_id === 1 ? 'Administrador' :
-               profile?.rol_id === 3 ? 'Consulta' : 'Usuario'}
+              {profile?.role_id === 1 ? 'Administrador' :
+               profile?.role_id === 2 ? 'Operador' :
+               profile?.role_id === 3 ? 'Consulta' : 'Usuario'}
             </p>
-            {profile?.rol_id && (
+            {profile?.role_id && (
               <p className="text-xs text-muted-foreground mt-1 max-w-48 truncate">
-                {profile?.rol_id === 1 ? 'Acceso total al sistema. Gestiona el inventario (entradas, salidas, correcciones), usuarios y configuraciones globales.' :
-                 profile?.rol_id === 3 ? 'Permiso de solo lectura. Puede visualizar todos los datos del sistema (inventarios, reportes, etc.) pero no puede realizar modificaciones.' :
+                {profile?.role_id === 1 ? 'Acceso total al sistema. Gestiona el inventario (entradas, salidas, correcciones), usuarios y configuraciones globales.' :
+                 profile?.role_id === 3 ? 'Permiso de solo lectura. Puede visualizar todos los datos del sistema (inventarios, reportes, etc.) pero no puede realizar modificaciones.' :
                  'Usuario sin rol asignado'}
               </p>
             )}

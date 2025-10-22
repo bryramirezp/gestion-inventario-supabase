@@ -28,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Trash2, Package, Edit, User, Calendar, Building2, FileText, UserPlus, Search, X } from 'lucide-react';
+import { Plus, Trash2, Package, Edit, User, Calendar, Building2, FileText, UserPlus, Search, X, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,6 +69,10 @@ export const DonativoForm = ({
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // Estado para controlar los pasos del wizard
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 2;
+
   const [formData, setFormData] = useState({
     donador_id: '',
     fecha: new Date().toISOString().split('T')[0],
@@ -93,24 +97,24 @@ export const DonativoForm = ({
 
   // Filter active warehouses and variants
   const almacenesActivos = useMemo(() =>
-    almacenes.filter(a => a.activo),
+    almacenes || [], // Ensure it's always an array
     [almacenes]
   );
 
   const variantesActivas = useMemo(() =>
-    variantes.filter(v => v.activo),
+    variantes || [], // Ensure it's always an array
     [variantes]
   );
 
   // Add article row
   const addArticulo = useCallback(() => {
     const newArticulo: ArticuloDonativo = {
-      variante_id: 0,
+      producto_id: 0,
       nombre: '',
       cantidad: 1,
       precio_unitario: 0,
-      almacen_id: almacenesActivos?.[0]?.almacen_id || 0,
-      unidad_medida_id: unidadesMedida?.[0]?.unidad_medida_id || 0,
+      almacen_id: almacenesActivos[0]?.warehouse_id || 0,
+      unidad_medida_id: unidadesMedida?.[0]?.unit_id || 0,
       total: 0
     };
     setFormData(prev => ({
@@ -148,8 +152,8 @@ export const DonativoForm = ({
   }, [variantesActivas]);
 
 
-  // Validate form
-  const validateForm = useCallback((): boolean => {
+  // Validate step 1 (General Information)
+  const validateStep1 = useCallback((): boolean => {
     if (!formData.donador_id) {
       toast({
         title: "Error de validación",
@@ -158,7 +162,11 @@ export const DonativoForm = ({
       });
       return false;
     }
+    return true;
+  }, [formData.donador_id, toast]);
 
+  // Validate step 2 (Product Details)
+  const validateStep2 = useCallback((): boolean => {
     if (formData.articulos.length === 0) {
       toast({
         title: "Error de validación",
@@ -214,68 +222,32 @@ export const DonativoForm = ({
     }
 
     return true;
-  }, [formData, toast]);
+  }, [formData.articulos, toast]);
+
+  // Navigation functions
+  const nextStep = useCallback(() => {
+    if (currentStep === 1 && validateStep1()) {
+      setCurrentStep(2);
+    }
+  }, [currentStep, validateStep1]);
+
+  const prevStep = useCallback(() => {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+    }
+  }, [currentStep]);
 
   // Submit form
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateStep2()) return;
 
     setIsSubmitting(true);
 
     try {
-      // 1. Create the donativo record
-      const { data: donativoData, error: donativoError } = await supabase
-        .from('donativos')
-        .insert({
-          donador_id: parseInt(formData.donador_id),
-          fecha: formData.fecha,
-          observaciones: formData.observaciones || null,
-          usuario_id: user?.id
-        })
-        .select()
-        .single();
-
-      if (donativoError) throw donativoError;
-
-      // 2. Create lote records and inventory movements for each article
-      for (const articulo of formData.articulos) {
-        // Create lote record
-        const { data: loteData, error: loteError } = await supabase
-          .from('lotes')
-          .insert({
-            variante_id: articulo.variante_id || 1, // Default to first variant if not selected
-            almacen_id: articulo.almacen_id,
-            cantidad_original: articulo.cantidad,
-            cantidad_actual: articulo.cantidad,
-            costo_unitario: articulo.precio_unitario,
-            fecha_vencimiento: articulo.fecha_vencimiento || null,
-            donativo_id: donativoData.donativo_id,
-            numero_lote_externo: null,
-            observaciones: null,
-            unidad_medida_id: articulo.unidad_medida_id
-          })
-          .select()
-          .single();
-
-        if (loteError) throw loteError;
-
-        // Create inventory movement record (Entrada por Donativo)
-        const { error: movimientoError } = await supabase
-          .from('movimientosinventario')
-          .insert({
-            lote_id: loteData.lote_id,
-            tipo_movimiento_id: 1, // Assuming 1 is "Entrada por Donativo"
-            cantidad: articulo.cantidad,
-            usuario_id: user?.id,
-            observaciones: `Entrada por donativo ${donativoData.donativo_id}`
-          });
-
-        if (movimientoError) throw movimientoError;
-      }
-
+      // For now, just show a success message since the database schema doesn't support donativos
       toast({
-        title: "Donativo registrado exitosamente",
-        description: `Se registraron ${formData.articulos.length} artículos en el inventario`,
+        title: "Función no implementada",
+        description: "El registro de donativos aún no está implementado en el esquema actual",
       });
 
       // Reset form
@@ -320,34 +292,20 @@ export const DonativoForm = ({
     }
 
     try {
-      const result = await onCreateDonador({
-        nombre_completo: nuevoDonadorData.nombre_completo,
-        correo: nuevoDonadorData.correo || undefined,
-        telefono: nuevoDonadorData.telefono || undefined,
-        tipo_donador_id: parseInt(nuevoDonadorData.tipo_donador_id)
+      // For now, just show a message since the database schema doesn't support donadores table
+      toast({
+        title: "Función no implementada",
+        description: "La creación de donadores aún no está implementada en el esquema actual",
       });
 
-      if (result.error) {
-        toast({
-          title: "Error al crear donador",
-          description: result.error.message || "Ocurrió un error inesperado",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Donador creado",
-          description: "El donador se creó correctamente",
-        });
-
-        // Reset form and close dialog
-        setNuevoDonadorData({
-          nombre_completo: '',
-          correo: '',
-          telefono: '',
-          tipo_donador_id: ''
-        });
-        setShowNuevoDonadorDialog(false);
-      }
+      // Reset form and close dialog
+      setNuevoDonadorData({
+        nombre_completo: '',
+        correo: '',
+        telefono: '',
+        tipo_donador_id: ''
+      });
+      setShowNuevoDonadorDialog(false);
     } catch (error) {
       console.error('Error creating donador:', error);
       toast({
@@ -361,14 +319,38 @@ export const DonativoForm = ({
 
   return (
     <div className="space-y-6 max-h-[80vh] overflow-y-auto">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold">Registrar Nuevo Donativo</h2>
-        <p className="text-muted-foreground">Complete la información del donativo en especie</p>
+      {/* Progress Indicator */}
+      <div className="flex items-center justify-center mb-6">
+        <div className="flex items-center space-x-4">
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+            currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+          }`}>
+            {currentStep > 1 ? <CheckCircle className="w-4 h-4" /> : '1'}
+          </div>
+          <div className={`flex-1 h-px ${currentStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+            currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+          }`}>
+            2
+          </div>
+        </div>
       </div>
 
-      {/* Información General del Donativo */}
-      <Card>
+      <div>
+        <h2 className="text-2xl font-bold">
+          {currentStep === 1 ? 'Información General del Donativo' : 'Detalles de los Artículos Donados'}
+        </h2>
+        <p className="text-muted-foreground">
+          {currentStep === 1
+            ? 'Complete la información general del donativo (Paso 1 de 2)'
+            : 'Agregue los artículos donados al inventario (Paso 2 de 2)'
+          }
+        </p>
+      </div>
+
+      {/* Paso 1: Información General del Donativo */}
+      {currentStep === 1 && (
+        <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -396,11 +378,11 @@ export const DonativoForm = ({
                     <SelectValue placeholder="Seleccionar donador..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {donadores.map(donador => {
-                      const tipoDonador = tiposDonadores.find(t => t.tipo_donador_id === donador.tipo_donador_id);
+                    {donadores?.filter(donador => donador?.donor_id).map(donador => {
+                      const tipoDonador = tiposDonadores?.find(t => t.donor_type_id === donador.donor_type_id);
                       return (
-                        <SelectItem key={donador.donador_id} value={donador.donador_id.toString()}>
-                          {donador.nombre_completo} ({tipoDonador?.nombre || 'Sin tipo'})
+                        <SelectItem key={`donador-${donador.donor_id}`} value={donador.donor_id?.toString()}>
+                          {donador.donor_name} - {donador.contact_person || 'Sin contacto'} ({tipoDonador?.type_name || 'Sin tipo'})
                         </SelectItem>
                       );
                     })}
@@ -450,24 +432,13 @@ export const DonativoForm = ({
             </div>
           </div>
 
-          {/* Observaciones Generales */}
-          <div>
-            <Label htmlFor="observaciones" className="text-sm font-medium text-foreground mb-2 block">
-              Observaciones Generales
-            </Label>
-            <Textarea
-              id="observaciones"
-              placeholder="Detalles adicionales del donativo en general..."
-              value={formData.observaciones}
-              onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
-              rows={3}
-            />
-          </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Detalles de los Artículos Donados */}
-      <Card>
+      {/* Paso 2: Detalles de los Artículos Donados */}
+      {currentStep === 2 && (
+        <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -524,16 +495,16 @@ export const DonativoForm = ({
                         </TableCell>
                         <TableCell>
                           <Select
-                            value={articulo.unidad_medida_id.toString()}
+                            value={articulo.unidad_medida_id ? articulo.unidad_medida_id.toString() : ""}
                             onValueChange={(value) => updateArticulo(index, 'unidad_medida_id', parseInt(value))}
                           >
                             <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {unidadesMedida?.map(unidad => (
-                                <SelectItem key={unidad.unidad_medida_id} value={unidad.unidad_medida_id.toString()}>
-                                  {unidad.nombre} ({unidad.abreviatura})
+                              {unidadesMedida?.filter(unidad => unidad?.unit_id).map(unidad => (
+                                <SelectItem key={`unidad-${unidad.unit_id}`} value={unidad.unit_id.toString()}>
+                                  {unidad.unit_name} ({unidad.abbreviation})
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -578,9 +549,9 @@ export const DonativoForm = ({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {almacenesActivos.map(almacen => (
-                                <SelectItem key={almacen.almacen_id} value={almacen.almacen_id.toString()}>
-                                  {almacen.nombre}
+                              {almacenesActivos.filter(almacen => almacen?.warehouse_id).map(almacen => (
+                                <SelectItem key={`almacen-${almacen.warehouse_id}`} value={almacen.warehouse_id.toString()}>
+                                  {almacen.warehouse_name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -617,24 +588,42 @@ export const DonativoForm = ({
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* Actions */}
-      <div className="flex justify-end space-x-4">
-        <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancelar
-        </Button>
-        <Button onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? 'Registrando...' : 'Registrar Donativo'}
-        </Button>
+      <div className="flex justify-between items-center">
+        <div>
+          {currentStep === 2 && (
+            <Button variant="outline" onClick={prevStep} disabled={isSubmitting}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Atrás
+            </Button>
+          )}
+        </div>
+        <div className="flex space-x-4">
+          <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            Cancelar
+          </Button>
+          {currentStep === 1 ? (
+            <Button onClick={nextStep} disabled={isSubmitting}>
+              Siguiente: Añadir Productos
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} disabled={isSubmitting}>
+              {isSubmitting ? 'Registrando...' : 'Finalizar y Guardar Donativo'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Nuevo Donador Dialog */}
       <Dialog open={showNuevoDonadorDialog} onOpenChange={setShowNuevoDonadorDialog}>
-        <DialogContent>
+        <DialogContent aria-describedby="nuevo-donador-description">
           <DialogHeader>
             <DialogTitle>Registrar Nuevo Donador</DialogTitle>
-            <DialogDescription>
-              Ingresa la información del nuevo donador
+            <DialogDescription id="nuevo-donador-description">
+              Ingresa la información del nuevo donador para agregarlo al sistema. Todos los campos marcados con * son obligatorios.
             </DialogDescription>
           </DialogHeader>
 
@@ -680,9 +669,9 @@ export const DonativoForm = ({
                   <SelectValue placeholder="Seleccionar tipo..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {tiposDonadores.map(tipo => (
-                    <SelectItem key={tipo.tipo_donador_id} value={tipo.tipo_donador_id.toString()}>
-                      {tipo.nombre}
+                  {tiposDonadores.filter(tipo => tipo?.donor_type_id).map(tipo => (
+                    <SelectItem key={`tipo-${tipo.donor_type_id}`} value={tipo.donor_type_id.toString()}>
+                      {tipo.type_name}
                     </SelectItem>
                   ))}
                 </SelectContent>

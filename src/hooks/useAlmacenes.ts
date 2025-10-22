@@ -3,10 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 // Interfaces basadas en el esquema actualizado
-export interface Almacen extends Tables<'almacenes'> {}
+export interface Almacen extends Tables<'warehouses'> {}
 
-export interface AlmacenInsert extends TablesInsert<'almacenes'> {}
-export interface AlmacenUpdate extends TablesUpdate<'almacenes'> {}
+export interface AlmacenInsert extends TablesInsert<'warehouses'> {}
+export interface AlmacenUpdate extends TablesUpdate<'warehouses'> {}
 
 export const useAlmacenes = () => {
   const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
@@ -17,9 +17,9 @@ export const useAlmacenes = () => {
     setIsLoading(true);
 
     const { data, error } = await supabase
-      .from('almacenes')
+      .from('warehouses')
       .select('*')
-      .order('nombre');
+      .order('warehouse_name');
 
     if (error) {
       console.error('Error fetching almacenes:', error);
@@ -34,7 +34,7 @@ export const useAlmacenes = () => {
   // Crear Almacén
   const createAlmacen = async (payload: AlmacenInsert) => {
     const { data, error } = await supabase
-      .from('almacenes')
+      .from('warehouses')
       .insert(payload)
       .select()
       .single();
@@ -54,9 +54,9 @@ export const useAlmacenes = () => {
   // Actualizar Almacén
   const updateAlmacen = async (almacen_id: number, payload: AlmacenUpdate) => {
     const { data, error } = await supabase
-      .from('almacenes')
+      .from('warehouses')
       .update(payload)
-      .eq('almacen_id', almacen_id)
+      .eq('warehouse_id', almacen_id)
       .select()
       .single();
 
@@ -67,7 +67,7 @@ export const useAlmacenes = () => {
 
     if (data) {
       setAlmacenes(prev => prev.map(a =>
-        a.almacen_id === almacen_id ? data : a
+        a.warehouse_id === almacen_id ? data : a
       ));
     }
 
@@ -77,9 +77,9 @@ export const useAlmacenes = () => {
   // Eliminar Almacén completamente de la base de datos
   const deleteAlmacen = async (almacen_id: number) => {
     const { error } = await supabase
-      .from('almacenes')
+      .from('warehouses')
       .delete()
-      .eq('almacen_id', almacen_id);
+      .eq('warehouse_id', almacen_id);
 
     if (error) {
       console.error('Error deleting almacen:', error);
@@ -87,14 +87,14 @@ export const useAlmacenes = () => {
     }
 
     // Remover de estado local
-    setAlmacenes(prev => prev.filter(a => a.almacen_id !== almacen_id));
+    setAlmacenes(prev => prev.filter(a => a.warehouse_id !== almacen_id));
     return { success: true };
   };
 
   // Obtener estadísticas
   const getStats = () => {
     const total = almacenes.length;
-    const activos = almacenes.filter(a => a.activo).length;
+    const activos = almacenes.filter(a => a.is_active).length;
     const inactivos = total - activos;
 
     return { total, activos, inactivos };

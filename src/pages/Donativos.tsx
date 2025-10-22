@@ -52,7 +52,9 @@ const Donativos = () => {
     nombre_completo: '',
     tipo_donador_id: '',
     correo: '',
-    telefono: ''
+    telefono: '',
+    direccion: '',
+    nombre_contacto: ''
   });
 
   const { donativos, donadores, tiposDonadores, createDonador, createDonativo, updateDonativo, deleteDonativo, toggleDonadorStatus, deleteDonador: deleteDonadorHook, totalDonativos, totalConDescuento } = useDonativos();
@@ -142,7 +144,9 @@ const Donativos = () => {
       nombre_completo: newDonadorData.nombre_completo,
       tipo_donador_id: parseInt(newDonadorData.tipo_donador_id),
       correo: newDonadorData.correo || null,
-      telefono: newDonadorData.telefono || null
+      telefono: newDonadorData.telefono || null,
+      direccion: newDonadorData.direccion || null,
+      nombre_contacto: newDonadorData.nombre_contacto || null
     });
 
     if (result.error) {
@@ -153,7 +157,9 @@ const Donativos = () => {
         nombre_completo: '',
         tipo_donador_id: '',
         correo: '',
-        telefono: ''
+        telefono: '',
+        direccion: '',
+        nombre_contacto: ''
       });
       setCreateDonadorOpen(false);
     }
@@ -227,14 +233,14 @@ const Donativos = () => {
             className="flex items-center space-x-2"
           >
             <UserPlus className="h-4 w-4" />
-            <span>Registrar Donador</span>
+            <span>Gestionar Donadores</span>
           </Button>
         </div>
         </div>
       </AnimatedCard>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <AnimatedCard delay={0.1} direction="up">
           <Card className="border-l-4 border-l-primary shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -286,22 +292,6 @@ const Donativos = () => {
           </Card>
         </AnimatedCard>
 
-        <AnimatedCard delay={0.4} direction="up">
-          <Card className="border-l-4 border-l-destructive shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Valor Real</CardTitle>
-              <DollarSign className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">
-                $<AnimatedCounter value={totalConDescuento} delay={1.1} />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Con descuentos aplicados
-              </p>
-            </CardContent>
-          </Card>
-        </AnimatedCard>
       </div>
 
       {/* Tabla de Donativos */}
@@ -332,7 +322,6 @@ const Donativos = () => {
                 <TableRow>
                   <TableHead>Donador</TableHead>
                   <TableHead>Valor Total</TableHead>
-                  <TableHead>Valor Real</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
@@ -344,7 +333,6 @@ const Donativos = () => {
                     <TableRow key={d.donativo_id}>
                       <TableCell>{donadorObj?.nombre_completo || 'Desconocido'}</TableCell>
                       <TableCell>${d.total.toLocaleString()}</TableCell>
-                      <TableCell>${d.total_con_descuento.toLocaleString()}</TableCell>
                       <TableCell>{getEstadoBadge(d.estado)}</TableCell>
                       <TableCell>
                         <Button
@@ -423,12 +411,21 @@ const Donativos = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="nombre_completo">Nombre Completo *</Label>
+                      <Label htmlFor="nombre_completo">Nombre o Razón Social *</Label>
                       <Input
                         id="nombre_completo"
                         value={newDonadorData.nombre_completo}
                         onChange={(e) => setNewDonadorData(prev => ({ ...prev, nombre_completo: e.target.value }))}
-                        placeholder="Ingrese el nombre completo"
+                        placeholder="Ingrese el nombre o razón social"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="nombre_contacto">Nombre de Contacto</Label>
+                      <Input
+                        id="nombre_contacto"
+                        value={newDonadorData.nombre_contacto}
+                        onChange={(e) => setNewDonadorData(prev => ({ ...prev, nombre_contacto: e.target.value }))}
+                        placeholder="Persona de contacto"
                       />
                     </div>
                     <div className="space-y-2">
@@ -441,9 +438,9 @@ const Donativos = () => {
                           <SelectValue placeholder="Seleccione un tipo" />
                         </SelectTrigger>
                         <SelectContent>
-                          {tiposDonadores.map((tipo) => (
-                            <SelectItem key={tipo.tipo_donador_id} value={tipo.tipo_donador_id.toString()}>
-                              {tipo.nombre}
+                          {tiposDonadores?.map((tipo) => (
+                            <SelectItem key={tipo?.donor_type_id} value={tipo?.donor_type_id?.toString()}>
+                              {tipo?.type_name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -468,6 +465,15 @@ const Donativos = () => {
                         placeholder="Número de teléfono"
                       />
                     </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="direccion">Dirección</Label>
+                      <Input
+                        id="direccion"
+                        value={newDonadorData.direccion}
+                        onChange={(e) => setNewDonadorData(prev => ({ ...prev, direccion: e.target.value }))}
+                        placeholder="Dirección completa del donador"
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-end space-x-2">
                     <Button
@@ -478,7 +484,9 @@ const Donativos = () => {
                           nombre_completo: '',
                           tipo_donador_id: '',
                           correo: '',
-                          telefono: ''
+                          telefono: '',
+                          direccion: '',
+                          nombre_contacto: ''
                         });
                       }}
                     >

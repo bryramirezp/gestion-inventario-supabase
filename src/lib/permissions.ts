@@ -26,21 +26,23 @@ export type Permission =
   // Usuarios
   | 'usuarios:read' | 'usuarios:write' | 'usuarios:delete';
 
-export type RoleId = 1 | 3;
+export type RoleId = 1 | 2 | 3;
 
 export const ROLE_NAMES: Record<RoleId, string> = {
   1: 'Administrador',
+  2: 'Operador',
   3: 'Consulta'
 };
 
 export const ROLE_DESCRIPTIONS: Record<RoleId, string> = {
-  1: 'Acceso total al sistema. Gestiona el inventario (entradas, salidas, correcciones), usuarios y configuraciones globales.',
-  3: 'Permiso de solo lectura. Puede visualizar todos los datos del sistema (inventarios, reportes, etc.) pero no puede realizar modificaciones.'
+  1: 'Administrador - Tiene acceso a todo. Ideal para ti y quizás otro administrador general.',
+  2: 'Operador - Puede realizar las operaciones del día a día (registrar entradas, salidas, transferencias). No puede borrar catálogos maestros (como Almacenes o Productos).',
+  3: 'Consulta - Solo puede ver reportes e inventario. No puede modificar nada.'
 };
 
-// Permisos por rol - Solo dos roles principales
+// Permisos por rol - Todos los roles definidos
 export const ROLE_PERMISSIONS: Record<RoleId, Permission[]> = {
-  1: [ // Administrador - Acceso total al sistema
+  1: [ // Administrador - Tiene acceso a todo
     'dashboard:read', 'dashboard:write',
     'inventario:read', 'inventario:write', 'inventario:delete', 'inventario:export',
     'donativos:read', 'donativos:write', 'donativos:delete', 'donativos:approve', 'donativos:export',
@@ -50,11 +52,20 @@ export const ROLE_PERMISSIONS: Record<RoleId, Permission[]> = {
     'configuracion:read', 'configuracion:write',
     'usuarios:read', 'usuarios:write', 'usuarios:delete'
   ],
-  3: [ // Consulta - Permiso de solo lectura
+  2: [ // Operador - Puede realizar las operaciones del día a día
+    'dashboard:read',
+    'inventario:read', 'inventario:write', 'inventario:export',
+    'donativos:read', 'donativos:write', 'donativos:approve',
+    'cocina:read', 'cocina:write', 'cocina:approve',
+    'bazar:read', 'bazar:write',
+    'reportes:read', 'reportes:export'
+  ],
+  3: [ // Consulta - Solo puede ver reportes e inventario
     'dashboard:read',
     'inventario:read',
     'donativos:read',
-    'cocina:read', 'bazar:read',
+    'cocina:read',
+    'bazar:read',
     'reportes:read', 'reportes:export'
   ]
 };
@@ -79,15 +90,15 @@ export const getPermissionsForRole = (rolId: RoleId): Permission[] => {
 
 // Verificar si un rol tiene acceso administrativo
 export const isAdminRole = (rolId: RoleId): boolean => {
-  return rolId === 1; // Solo Administrador General
+  return rolId === 1; // Solo Administrador
 };
 
 // Verificar si un rol puede gestionar usuarios
 export const canManageUsers = (rolId: RoleId): boolean => {
-  return rolId === 1; // Solo Administrador General
+  return rolId === 1; // Solo Administrador
 };
 
 // Verificar si un rol puede gestionar configuración
 export const canManageConfig = (rolId: RoleId): boolean => {
-  return rolId === 1; // Solo Administrador General
+  return rolId === 1; // Solo Administrador
 };

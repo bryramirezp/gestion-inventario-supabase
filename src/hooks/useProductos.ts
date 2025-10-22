@@ -3,36 +3,26 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
 
-// Interfaces basadas en el nuevo esquema con variantes
-export interface Producto extends Tables<'productos'> {
-  categoria?: Tables<'categoriasproductos'>;
+// Interfaces basadas en el esquema actual de Supabase
+export interface Producto extends Tables<'products'> {
+  categoria?: Tables<'categories'>;
   marca?: string;
-  unidad_medida?: Tables<'unidadesmedida'>;
+  unidad_medida?: Tables<'units'>;
   precio_referencia?: number;
 }
 
-export interface VarianteProducto extends Tables<'variantes_producto'> {
-  producto?: Producto;
-  marca?: Tables<'marcas'>;
-  unidad_medida?: Tables<'unidadesmedida'>;
-  lote?: Tables<'lotes'>;
-}
+export interface Marca extends Tables<'brands'> {}
+export interface CategoriaProducto extends Tables<'categories'> {}
+export interface UnidadMedida extends Tables<'units'> {}
+export interface Almacen extends Tables<'warehouses'> {}
+export interface Lote extends Tables<'stock_lots'> {}
 
-export interface Marca extends Tables<'marcas'> {}
-export interface CategoriaProducto extends Tables<'categoriasproductos'> {}
-export interface UnidadMedida extends Tables<'unidadesmedida'> {}
-export interface Almacen extends Tables<'almacenes'> {}
-export interface Lote extends Tables<'lotes'> {}
-
-export interface ProductoInsert extends TablesInsert<'productos'> {}
-export interface ProductoUpdate extends TablesUpdate<'productos'> {}
-export interface VarianteInsert extends TablesInsert<'variantes_producto'> {}
-export interface VarianteUpdate extends TablesUpdate<'variantes_producto'> {}
+export interface ProductoInsert extends TablesInsert<'products'> {}
+export interface ProductoUpdate extends TablesUpdate<'products'> {}
 
 export const useProductos = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [variantes, setVariantes] = useState<VarianteProducto[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [categorias, setCategorias] = useState<CategoriaProducto[]>([]);
   const [unidadesMedida, setUnidadesMedida] = useState<UnidadMedida[]>([]);
@@ -41,27 +31,20 @@ export const useProductos = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Transformación para incluir datos relacionados
-  const transformProducto = (producto: Tables<'productos'>): Producto => ({
+  const transformProducto = (producto: Tables<'products'>): Producto => ({
     ...producto,
-    categoria: categorias.find(c => c.categoria_producto_id === producto.categoria_producto_id),
+    categoria: categorias.find(c => c.category_id === producto.category_id),
     marca: undefined, // Se obtendrá de variantes si es necesario
-    unidad_medida: undefined, // Se obtendrá de variantes si es necesario
+    unidad_medida: unidadesMedida.find(u => u.unit_id === producto.official_unit_id),
     precio_referencia: undefined, // Se obtendrá de variantes si es necesario
-  });
-
-  const transformVariante = (variante: Tables<'variantes_producto'>): VarianteProducto => ({
-    ...variante,
-    producto: productos.find(p => p.producto_id === variante.producto_id),
-    marca: marcas.find(m => m.marca_id === variante.marca_id),
-    unidad_medida: unidadesMedida.find(u => u.unidad_medida_id === variante.unidad_medida_id),
   });
 
   // Fetch Categorías
   const fetchCategorias = async () => {
     const { data, error } = await supabase
-      .from('categoriasproductos')
+      .from('categories')
       .select('*')
-      .order('nombre');
+      .order('category_name');
 
     if (error) {
       console.error('Error fetching categorias:', error);
@@ -73,9 +56,9 @@ export const useProductos = () => {
   // Fetch Unidades de Medida
   const fetchUnidadesMedida = async () => {
     const { data, error } = await supabase
-      .from('unidadesmedida')
+      .from('units')
       .select('*')
-      .order('nombre');
+      .order('unit_name');
 
     if (error) {
       console.error('Error fetching unidades medida:', error);
@@ -87,10 +70,10 @@ export const useProductos = () => {
   // Fetch Almacenes
   const fetchAlmacenes = async () => {
     const { data, error } = await supabase
-      .from('almacenes')
+      .from('warehouses')
       .select('*')
-      .eq('activo', true)
-      .order('nombre');
+      .eq('is_active', true)
+      .order('warehouse_name');
 
     if (error) {
       console.error('Error fetching almacenes:', error);
@@ -102,10 +85,9 @@ export const useProductos = () => {
   // Fetch Marcas
   const fetchMarcas = async () => {
     const { data, error } = await supabase
-      .from('marcas')
+      .from('brands')
       .select('*')
-      .eq('activo', true)
-      .order('nombre');
+      .order('brand_name');
 
     if (error) {
       console.error('Error fetching marcas:', error);
@@ -114,21 +96,20 @@ export const useProductos = () => {
     return data || [];
   };
 
-  // Fetch Variantes
-  const fetchVariantes = async () => {
+  // Fetch Productos con datos relacionados
+  const fetchProductosConRelaciones = async () => {
     const { data, error } = await supabase
-      .from('variantes_producto')
+      .from('products')
       .select(`
         *,
-        productos!inner(*),
-        marcas(*),
-        unidadesmedida(*)
+        categories(*),
+        brands(*),
+        units(*)
       `)
-      .eq('activo', true)
-      .order('productos.nombre');
+      .order('product_name');
 
     if (error) {
-      console.error('Error fetching variantes:', error);
+      console.error('Error fetching productos con relaciones:', error);
       return [];
     }
     return data || [];
@@ -137,10 +118,9 @@ export const useProductos = () => {
   // Fetch Lotes
   const fetchLotes = async () => {
     const { data, error } = await supabase
-      .from('lotes')
+      .from('stock_lots')
       .select('*')
-      .eq('activo', true)
-      .order('fecha_entrada', { ascending: false });
+      .order('received_date', { ascending: false });
 
     if (error) {
       console.error('Error fetching lotes:', error);
@@ -154,12 +134,11 @@ export const useProductos = () => {
     setIsLoading(true);
 
     // Fetch datos relacionados primero
-    const [cats, units, almacs, marcasData, variantesData, lotesData] = await Promise.all([
+    const [cats, units, almacs, marcasData, lotesData] = await Promise.all([
       fetchCategorias(),
       fetchUnidadesMedida(),
       fetchAlmacenes(),
       fetchMarcas(),
-      fetchVariantes(),
       fetchLotes()
     ]);
 
@@ -169,24 +148,16 @@ export const useProductos = () => {
     setMarcas(marcasData);
     setLotes(lotesData);
 
-    // Fetch productos
-    const { data, error } = await supabase
-      .from('productos')
-      .select('*')
-      .order('nombre');
+    // Fetch productos con datos relacionados
+    const productosData = await fetchProductosConRelaciones();
 
-    if (error) {
-      console.error('Error fetching productos:', error);
+    if (productosData.length === 0) {
       setProductos([]);
     } else {
       // Transformar productos con datos relacionados
-      const productosTransformados = (data || []).map(transformProducto);
+      const productosTransformados = productosData.map(transformProducto);
       setProductos(productosTransformados);
     }
-
-    // Transformar variantes
-    const variantesTransformadas = variantesData.map(transformVariante);
-    setVariantes(variantesTransformadas);
 
     setIsLoading(false);
   };
@@ -194,7 +165,7 @@ export const useProductos = () => {
   // Crear Producto
   const createProducto = async (payload: ProductoInsert) => {
     const { data, error } = await supabase
-      .from('productos')
+      .from('products')
       .insert(payload)
       .select()
       .single();
@@ -215,9 +186,9 @@ export const useProductos = () => {
   // Actualizar Producto
   const updateProducto = async (producto_id: number, payload: ProductoUpdate) => {
     const { data, error } = await supabase
-      .from('productos')
+      .from('products')
       .update(payload)
-      .eq('producto_id', producto_id)
+      .eq('product_id', producto_id)
       .select()
       .single();
 
@@ -229,7 +200,7 @@ export const useProductos = () => {
     if (data) {
       const productoActualizado = transformProducto(data);
       setProductos(prev => prev.map(p =>
-        p.producto_id === producto_id ? productoActualizado : p
+        p.product_id === producto_id ? productoActualizado : p
       ));
     }
 
@@ -239,9 +210,9 @@ export const useProductos = () => {
   // Eliminar Producto (desactivar)
   const deleteProducto = async (producto_id: number) => {
     const { error } = await supabase
-      .from('productos')
-      .update({ activo: false })
-      .eq('producto_id', producto_id);
+      .from('products')
+      .delete()
+      .eq('product_id', producto_id);
 
     if (error) {
       console.error('Error deleting producto:', error);
@@ -249,35 +220,23 @@ export const useProductos = () => {
     }
 
     // Remover de estado local
-    setProductos(prev => prev.filter(p => p.producto_id !== producto_id));
+    setProductos(prev => prev.filter(p => p.product_id !== producto_id));
     return { success: true };
   };
 
-  // Obtener stock de una variante en un almacén específico
-  const getStockVariante = (variante_id: number, almacen_id: number): number => {
+  // Obtener stock de un producto (simplificado - usa stock_lots)
+  const getStockProducto = (producto_id: number, almacen_id: number): number => {
     const loteStock = lotes
-      .filter(l => l.variante_id === variante_id && l.almacen_id === almacen_id && l.activo)
-      .reduce((total, l) => total + l.cantidad_actual, 0);
+      .filter(l => l.product_id === producto_id && l.warehouse_id === almacen_id)
+      .reduce((total, l) => total + l.current_quantity, 0);
     return loteStock;
   };
 
-  // Obtener stock total de una variante en todos los almacenes
-  const getStockTotalVariante = (variante_id: number): number => {
-    return lotes
-      .filter(l => l.variante_id === variante_id && l.activo)
-      .reduce((total, l) => total + l.cantidad_actual, 0);
-  };
-
-  // Obtener stock de un producto genérico (suma de todas sus variantes)
-  const getStockProducto = (producto_id: number, almacen_id: number): number => {
-    const variantesProducto = variantes.filter(v => v.producto_id === producto_id);
-    return variantesProducto.reduce((total, v) => total + getStockVariante(v.variante_id, almacen_id), 0);
-  };
-
-  // Obtener stock total de un producto genérico en todos los almacenes
+  // Obtener stock total de un producto en todos los almacenes
   const getStockTotalProducto = (producto_id: number): number => {
-    const variantesProducto = variantes.filter(v => v.producto_id === producto_id);
-    return variantesProducto.reduce((total, v) => total + getStockTotalVariante(v.variante_id), 0);
+    return lotes
+      .filter(l => l.product_id === producto_id)
+      .reduce((total, l) => total + l.current_quantity, 0);
   };
 
   useEffect(() => {
@@ -289,7 +248,6 @@ export const useProductos = () => {
 
   return {
     productos,
-    variantes,
     marcas,
     categorias,
     unidadesMedida,
@@ -302,7 +260,5 @@ export const useProductos = () => {
     deleteProducto,
     getStockProducto,
     getStockTotalProducto,
-    getStockVariante,
-    getStockTotalVariante,
   };
 };

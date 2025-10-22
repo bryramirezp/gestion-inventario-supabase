@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
 
-export interface Usuario extends Tables<'perfiles'> {}
+export interface Usuario {
+  id: string;
+  nombre: string;
+  email: string;
+  rol_id: number;
+  activo: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface UsuarioInsert {
   nombre: string;
@@ -22,12 +30,12 @@ export const useUsuarios = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch all users from perfiles table
+  // Fetch all users from users table (as per current database schema)
   const fetchUsuarios = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('perfiles')
+        .from('users')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -35,7 +43,17 @@ export const useUsuarios = () => {
         console.error('Error fetching usuarios:', error);
         setUsuarios([]);
       } else {
-        setUsuarios(data || []);
+        // Transform data to match expected interface
+        const transformedData = (data || []).map(user => ({
+          id: user.user_id,
+          nombre: user.full_name,
+          email: '', // Email not stored in users table, comes from auth.users
+          rol_id: user.role_id || 3,
+          activo: user.is_active,
+          created_at: user.created_at,
+          updated_at: user.updated_at
+        }));
+        setUsuarios(transformedData);
       }
     } catch (error) {
       console.error('Error fetching usuarios:', error);
@@ -53,9 +71,25 @@ export const useUsuarios = () => {
       // 2. Then create profile record
       console.log('Creating usuario:', usuarioData);
 
-      // Simulate success for now
+      // Insert into users table
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          user_id: `temp-${Date.now()}`, // This should be the actual auth user ID
+          full_name: usuarioData.nombre,
+          role_id: usuarioData.rol_id,
+          is_active: usuarioData.activo ?? true
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating usuario:', error);
+        return { error };
+      }
+
       await fetchUsuarios();
-      return { data: { ...usuarioData, id: 'temp-id', created_at: new Date().toISOString() } };
+      return { data };
     } catch (error) {
       console.error('Error creating usuario:', error);
       return { error };
@@ -66,9 +100,13 @@ export const useUsuarios = () => {
   const updateUsuario = async (id: string, usuarioData: UsuarioUpdate) => {
     try {
       const { data, error } = await supabase
-        .from('perfiles')
-        .update(usuarioData)
-        .eq('id', id)
+        .from('users')
+        .update({
+          full_name: usuarioData.nombre,
+          role_id: usuarioData.rol_id,
+          is_active: usuarioData.activo
+        })
+        .eq('user_id', id)
         .select()
         .single();
 

@@ -52,14 +52,11 @@ const MainLayout = () => {
                         <User className="h-4 w-4 text-primary" />
                       </div>
                       <div className="hidden md:block text-left">
-                        <p className="text-sm font-medium">{profile?.nombre}</p>
+                        <p className="text-sm font-medium">{profile?.full_name}</p>
                         <p className="text-xs text-muted-foreground capitalize">
-                          {profile?.rol_id === 1 ? 'Administrador General' :
-                           profile?.rol_id === 2 ? 'Coordinador de Inventario' :
-                           profile?.rol_id === 3 ? 'Responsable de Cocina' :
-                           profile?.rol_id === 4 ? 'Encargado del Bazar' :
-                           profile?.rol_id === 5 ? 'Coordinador de Donativos' :
-                           profile?.rol_id === 6 ? 'Cuidador/Voluntario' : 'Usuario'}
+                          {profile?.role_id === 1 ? 'Administrador' :
+                           profile?.role_id === 2 ? 'Operador' :
+                           profile?.role_id === 3 ? 'Consulta' : 'Usuario'}
                         </p>
                       </div>
                     </Button>

@@ -53,8 +53,9 @@ export default function Almacenes() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAlmacen, setEditingAlmacen] = useState<any>(null);
   const [formData, setFormData] = useState({
-    nombre: '',
-    activo: true
+    warehouse_name: '',
+    location_description: '',
+    is_active: true
   });
 
   // Delete confirmation
@@ -65,8 +66,9 @@ export default function Almacenes() {
   const openEditDialog = (almacen: any) => {
     setEditingAlmacen(almacen);
     setFormData({
-      nombre: almacen.nombre,
-      activo: almacen.activo
+      warehouse_name: almacen.warehouse_name,
+      location_description: almacen.location_description || '',
+      is_active: almacen.is_active
     });
     setDialogOpen(true);
   };
@@ -77,7 +79,7 @@ export default function Almacenes() {
   };
 
   const handleCreateOrUpdate = async () => {
-    if (!formData.nombre.trim()) {
+    if (!formData.warehouse_name.trim()) {
       toast({
         title: "Error",
         description: "El nombre del almacén es obligatorio",
@@ -88,23 +90,24 @@ export default function Almacenes() {
     }
 
     const almacenData = {
-      nombre: formData.nombre,
-      activo: formData.activo
+      warehouse_name: formData.warehouse_name,
+      location_description: formData.location_description || null,
+      is_active: formData.is_active
     };
 
     try {
       if (editingAlmacen) {
-        await updateAlmacen(editingAlmacen.almacen_id, almacenData);
+        await updateAlmacen(editingAlmacen.warehouse_id, almacenData);
         toast({
           title: "Almacén actualizado",
-          description: `El almacén "${formData.nombre}" se actualizó correctamente`,
+          description: `El almacén "${formData.warehouse_name}" se actualizó correctamente`,
           duration: 3000,
         });
       } else {
         await createAlmacen(almacenData);
         toast({
           title: "Almacén creado",
-          description: `El almacén "${formData.nombre}" se creó correctamente`,
+          description: `El almacén "${formData.warehouse_name}" se creó correctamente`,
           duration: 3000,
         });
       }
@@ -149,8 +152,9 @@ export default function Almacenes() {
 
   const resetForm = () => {
     setFormData({
-      nombre: '',
-      activo: true
+      warehouse_name: '',
+      location_description: '',
+      is_active: true
     });
   };
 
@@ -209,22 +213,30 @@ export default function Almacenes() {
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="nombre">Nombre del Almacén</Label>
+                <Label htmlFor="warehouse_name">Nombre del Almacén</Label>
                 <Input
-                  id="nombre"
-                  value={formData.nombre}
-                  onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                  id="warehouse_name"
+                  value={formData.warehouse_name}
+                  onChange={(e) => setFormData({...formData, warehouse_name: e.target.value})}
                   placeholder="Ej: Almacén Principal"
                 />
               </div>
-
+              <div>
+                <Label htmlFor="location_description">Descripción de Ubicación</Label>
+                <Input
+                  id="location_description"
+                  value={formData.location_description}
+                  onChange={(e) => setFormData({...formData, location_description: e.target.value})}
+                  placeholder="Ej: Planta baja, ala norte"
+                />
+              </div>
               <div className="flex items-center space-x-2">
                 <Switch
-                  id="activo"
-                  checked={formData.activo}
-                  onCheckedChange={(checked) => setFormData({...formData, activo: checked})}
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
                 />
-                <Label htmlFor="activo">Activo</Label>
+                <Label htmlFor="is_active">Almacén activo</Label>
               </div>
             </div>
 
@@ -296,10 +308,10 @@ export default function Almacenes() {
       <AnimatedCard delay={0.2} direction="left">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {almacenes.map((almacen, index) => {
-            const stats = getWarehouseStats(almacen.almacen_id);
+            const stats = getWarehouseStats(almacen.warehouse_id);
 
             return (
-              <Card key={almacen.almacen_id} className={`hover:shadow-lg transition-shadow duration-200 ${getWarehouseColor('default')} shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1`}>
+              <Card key={almacen.warehouse_id} className={`hover:shadow-lg transition-shadow duration-200 ${getWarehouseColor('default')} shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1`}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
@@ -307,14 +319,14 @@ export default function Almacenes() {
                         {getWarehouseIcon('default')}
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{almacen.nombre}</CardTitle>
+                        <CardTitle className="text-lg">{almacen.warehouse_name}</CardTitle>
                         <CardDescription className="mt-1">
-                          Almacén de la fundación {/* TODO: Add description field to almacenes table */}
+                          {almacen.location_description || 'Almacén de la fundación'}
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge variant="outline" className={almacen.activo ? 'text-green-600 border-green-600' : 'text-gray-600 border-gray-600'}>
-                      {almacen.activo ? 'Activo' : 'Inactivo'}
+                    <Badge variant="outline" className={almacen.is_active ? 'text-green-600 border-green-600' : 'text-gray-600 border-gray-600'}>
+                      {almacen.is_active ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -354,7 +366,7 @@ export default function Almacenes() {
                         <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(almacen)}>
                           Configurar
                         </Button>
-                        <Button variant="outline" size="sm" className="flex-1" onClick={() => openDeleteDialog(almacen.almacen_id)}>
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => openDeleteDialog(almacen.warehouse_id)}>
                           Eliminar
                         </Button>
                       </div>
@@ -382,17 +394,17 @@ export default function Almacenes() {
           <CardContent>
             <div className="space-y-4">
               {almacenes.map((almacen) => {
-                const stats = getWarehouseStats(almacen.almacen_id);
-
+                const stats = getWarehouseStats(almacen.warehouse_id);
+    
                 return (
-                  <div key={almacen.almacen_id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-all duration-300 hover:shadow-sm">
+                  <div key={almacen.warehouse_id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-all duration-300 hover:shadow-sm">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 rounded-lg bg-white">
                         {getWarehouseIcon('default')}
                       </div>
                       <div>
-                        <h3 className="font-medium text-foreground">{almacen.nombre}</h3>
-                        <p className="text-sm text-muted-foreground">Almacén de la fundación {/* TODO: Add description field */}</p>
+                        <h3 className="font-medium text-foreground">{almacen.warehouse_name}</h3>
+                        <p className="text-sm text-muted-foreground">{almacen.location_description || 'Almacén de la fundación'}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-6">
